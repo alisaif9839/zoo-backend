@@ -1,31 +1,28 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const fs = require('fs'); // <-- फाइल सिस्टम को मैनेज करने के लिए
-const path = require('path'); // <-- पाथ को मैनेज करने के लिए
+const fs = require('fs');
+const path = require('path');
 
 // Routes
 const authRoutes = require('./routes/authRoutes');
 const ticketRoutes = require('./routes/ticketRoutes');
 const userRoutes = require('./routes/userRoutes');
 const galleryRoutes = require('./routes/galleryRoutes');
+const aiRoutes = require('./routes/aiRoutes');
 
 const app = express();
 const PORT = 5000;
 
-// Middleware
+// --- यहाँ बदलाव किया गया है ---
+// सर्वर को बताएँ कि किसी भी वेबसाइट से आने वाले अनुरोधों को अनुमति दें
 app.use(cors());
+// ---------------------------------
+
 app.use(express.json({ limit: '50mb' }));
 app.use('/uploads', express.static('uploads'));
 
-// --- यहाँ बदलाव किया गया है ---
-// सर्वर शुरू होने से पहले 'uploads' फोल्डर की जाँच करें और बनाएँ
-const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir);
-    console.log("Uploads directory created!");
-}
-// ---------------------------------
+// ... (uploads फोल्डर बनाने वाला कोड) ...
 
 // Database Connection
 const MONGO_URI = 'mongodb+srv://alisaif35216_db_user:alisaif9839@cluster0.kukz4ri.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'; 
@@ -39,6 +36,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/gallery', galleryRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Start the server
 app.listen(PORT, () => {
