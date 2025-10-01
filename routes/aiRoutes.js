@@ -2,38 +2,52 @@ const express = require('express');
 const router = express.Router();
 const fetch = require('node-fetch');
 
-const API_KEY = 'AIzaSyDbP1Esy5taT9dLebE5dF-9c9MNnrE8nfw'; // आपकी API Key
+const API_KEY = 'AIzaSyDbP1EsytaT9dLebE5dF-9c9MNnrE8nfw'; // आपकी API Key
 
-// --- नया डीबगिंग रूट यहाँ जोड़ा गया है ---
-// यह हमें बताएगा कि कौन से मॉडल उपलब्ध हैं
-router.get('/list-models', async (req, res) => {
-    try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${API_KEY}`);
-        const data = await response.json();
-        
-        // यह लिस्ट आपके Render के Logs में दिखाई देगी
-        console.log("--- AVAILABLE AI MODELS ---");
-        console.log(data.models.map(m => `Name: ${m.name}, Supported Method: ${m.supportedGenerationMethods}`));
-        console.log("---------------------------");
-
-        res.status(200).json(data.models);
-    } catch (error) {
-        console.error("LIST MODELS ERROR:", error);
-        res.status(500).json({ message: "Could not list models." });
-    }
-});
-// ---------------------------------------------
-
-
+// AI से सवाल पूछने के लिए फाइनल और सही रूट
 router.post('/ask', async (req, res) => {
-    // (आपका पुराना /ask वाला कोड अभी के लिए यहाँ रहेगा, हम उसे बाद में ठीक करेंगे)
     try {
         const { question } = req.body;
-        // ... (बाकी का कोड)
-        const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`;
-        // ... (बाकी का कोड)
+        if (!question) {
+            return res.status(400).json({ message: "No question provided." });
+        }
+
+        // --- यहाँ बदलाव किया गया है ---
+        // अब हम सही मॉडल का नाम इस्तेमाल कर रहे हैं
+        const correctModelName = 'gemini-1.0-pro'; 
+        const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${correctModelName}:generateContent?key=${API_KEY}`;
+        // ---------------------------------
+        
+        // सिस्टम निर्देश को payload से हटा दिया गया है क्योंकि 'gemini-pro' इसे इस तरह सपोर्ट नहीं करता
+        const payload = {
+            contents: [{
+                parts: [{ text: `You are a friendly zoo expert named Zooey. Answer this question about animals simply and for all ages in under 50 words: ${question}` }]
+            }]
+        };
+
+        const response = await fetch(GEMINI_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Gemini API responded with status: ${response.status} - ${errorText}`);
+        }
+
+        const result = await response.json();
+        if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts[0].text) {
+            const aiResponse = result.candidates[0].content.parts[0].text;
+            res.status(200).json({ answer: aiResponse });
+        } else {
+            // कभी-कभी AI सुरक्षा कारणों से खाली जवाब भेजता है
+            res.status(200).json({ answer: "I can't answer that question right now. Try asking something else about animals!" });
+        }
+
     } catch (error) {
-        // ...
+        console.error("AI CHATBOT ERROR:", error);
+        res.status(500).json({ message: "Sorry, I'm having trouble thinking right now." });
     }
 });
 
