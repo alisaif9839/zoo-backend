@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const fetch = require('node-fetch');
 
-const API_KEY = 'AIzaSyDbP1EsytaT9dLebE5dF-9c9MNnrE8nfw'; // आपकी API Key
+const API_KEY = 'AIzaSyDbP1Esy5taT9dLebE5dF-9c9MNnrE8nfw'; // आपकी API key
 
 // AI से सवाल पूछने के लिए फाइनल और सही रूट
 router.post('/ask', async (req, res) => {
