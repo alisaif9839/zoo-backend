@@ -12,15 +12,15 @@ router.post('/ask', async (req, res) => {
         const API_KEY = 'AIzaSyDbP1Esy5taT9dLebE5dF-9c9MNnrE8nfw'; // आपकी API Key
 
         // --- यहाँ बदलाव किया गया है ---
-        // AI मॉडल का नाम सही कर दिया गया है
-        const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`;
+        // AI मॉडल का नाम बदलकर 'gemini-pro' कर दिया गया है
+        const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`;
         // ---------------------------------
         
-        const systemInstruction = "You are a friendly and knowledgeable zoo expert named 'Zooey'. Answer questions about animals in a simple, fun, and informative way for all ages. Keep answers under 50 words.";
-
+        // सिस्टम निर्देश को payload से हटा दिया गया है क्योंकि 'gemini-pro' इसे इस तरह सपोर्ट नहीं करता
         const payload = {
-            systemInstruction: { parts: [{ text: systemInstruction }] },
-            contents: [{ parts: [{ text: question }] }]
+            contents: [{
+                parts: [{ text: `You are a friendly zoo expert named Zooey. Answer this question about animals simply and for all ages in under 50 words: ${question}` }]
+            }]
         };
 
         const response = await fetch(GEMINI_API_URL, {
@@ -39,7 +39,8 @@ router.post('/ask', async (req, res) => {
             const aiResponse = result.candidates[0].content.parts[0].text;
             res.status(200).json({ answer: aiResponse });
         } else {
-            throw new Error("Invalid response structure from Gemini API.");
+            // कभी-कभी AI सुरक्षा कारणों से खाली जवाब भेजता है
+            res.status(200).json({ answer: "I can't answer that question right now. Try asking something else about animals!" });
         }
 
     } catch (error) {
