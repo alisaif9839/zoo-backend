@@ -12,17 +12,21 @@ const galleryRoutes = require('./routes/galleryRoutes');
 const aiRoutes = require('./routes/aiRoutes');
 
 const app = express();
-const PORT = 5000;
 
-// --- यहाँ बदलाव किया गया है ---
-// सर्वर को बताएँ कि किसी भी वेबसाइट से आने वाले अनुरोधों को अनुमति दें
-app.use(cors());
+// --- यहाँ पहला बदलाव किया गया है ---
+// Render अपना पोर्ट खुद देगा, हम उसे इस्तेमाल करेंगे
+const PORT = process.env.PORT || 5000;
 // ---------------------------------
 
+// Middleware
+app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use('/uploads', express.static('uploads'));
 
-// ... (uploads फोल्डर बनाने वाला कोड) ...
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir);
+}
 
 // Database Connection
 const MONGO_URI = 'mongodb+srv://alisaif35216_db_user:alisaif9839@cluster0.kukz4ri.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'; 
@@ -39,6 +43,8 @@ app.use('/api/gallery', galleryRoutes);
 app.use('/api/ai', aiRoutes);
 
 // Start the server
+// --- यहाँ दूसरा बदलाव किया गया है ---
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    // अब यह सही पोर्ट दिखाएगा
+    console.log(`Server is running on port ${PORT}`);
 });
