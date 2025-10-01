@@ -9,12 +9,12 @@ router.post('/ask', async (req, res) => {
             return res.status(400).json({ message: "No question provided." });
         }
 
+        const API_KEY = 'AIzaSyDbP1Esy5taT9dLebE5dF-9c9MNnrE8nfw'; // आपकी API Key
+
         // --- यहाँ बदलाव किया गया है ---
-        // आपकी API Key यहाँ जोड़ दी गई है
-        const API_KEY = 'AIzaSyDbP1Esy5taT9dLebE5dF-9c9MNnrE8nfw';
+        // AI मॉडल का नाम सही कर दिया गया है
+        const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`;
         // ---------------------------------
-        
-        const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-1.5-pro-latest:generateContent?key=${API_KEY}`;
         
         const systemInstruction = "You are a friendly and knowledgeable zoo expert named 'Zooey'. Answer questions about animals in a simple, fun, and informative way for all ages. Keep answers under 50 words.";
 
@@ -35,7 +35,6 @@ router.post('/ask', async (req, res) => {
         }
 
         const result = await response.json();
-        // जाँचें कि क्या जवाब मौजूद है
         if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts[0].text) {
             const aiResponse = result.candidates[0].content.parts[0].text;
             res.status(200).json({ answer: aiResponse });
