@@ -26,11 +26,9 @@ router.get('/list-models', async (req, res) => {
 
 
 router.post('/ask', async (req, res) => {
-    // (आपका पुराना /ask वाला कोड अभी के लिए यहाँ रहेगा, हम उसे बाद में ठीक करेंगे)
+    // (यह /ask वाला रूट अभी काम नहीं करेगा, हम इसे बाद में ठीक करेंगे)
     try {
         const { question } = req.body;
-        // ... (बाकी का कोड)
-        // यह लाइन अभी के लिए एरर देगी, लेकिन कोई बात नहीं
         const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`;
         const payload = { contents: [{ parts: [{ text: question }] }] };
         const response = await fetch(GEMINI_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
@@ -42,3 +40,4 @@ router.post('/ask', async (req, res) => {
 });
 
 module.exports = router;
+
